@@ -253,6 +253,71 @@ h3:first-child {
   .row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .en { text-align: left; }
 }
+
+/* Hover conjugation tooltip */
+.has-conj {
+  position: relative;
+  cursor: default;
+}
+.has-conj::after {
+  content: " ▸";
+  font-size: 11px;
+  color: var(--color-accent);
+  opacity: 0.7;
+}
+.conj-tooltip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 100;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 12px 14px;
+  min-width: 220px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.has-conj:hover .conj-tooltip,
+.has-conj:focus .conj-tooltip {
+  display: block;
+}
+.conj-tooltip .ct-title {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  margin-bottom: 8px;
+}
+.conj-tooltip .ct-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+.conj-tooltip .ct-row {
+  display: flex;
+  gap: 6px;
+}
+.conj-tooltip .ct-pro {
+  color: var(--color-text-secondary);
+  min-width: 52px;
+}
+.conj-tooltip .ct-vf {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+.conj-tooltip .ct-aux {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border-secondary);
+}
 </style>
 
 <div class="nav">
@@ -564,18 +629,33 @@ h3:first-child {
   <h3>Partizip II — irregular verbs</h3>
   <div class="card">
     <p style="margin:0 0 12px;font-size:14px;color:var(--color-text-secondary)">Irregular verbs use <strong style="color:var(--color-text-primary)">ge- + (changed) stem + -en</strong>. Many also have a vowel change. These must be memorised.</p>
+    <p style="font-size:12.5px;color:var(--color-text-tertiary);margin:0 0 10px;font-style:italic;">Hover over a verb to see its present-tense conjugation.</p>
     <div class="two-col" style="gap:16px">
       <div class="table-wrapper">
         <table class="table-styled">
           <thead><tr><th>Infinitiv</th><th>Partizip II</th></tr></thead>
           <tbody>
-            <tr><td>fahren</td><td><strong>ge</strong>fahr<strong>en</strong></td></tr>
-            <tr><td>lesen</td><td><strong>ge</strong>les<strong>en</strong></td></tr>
-            <tr><td>kommen</td><td><strong>ge</strong>komm<strong>en</strong></td></tr>
-            <tr><td>sehen</td><td><strong>ge</strong>seh<strong>en</strong></td></tr>
-            <tr><td>schlafen</td><td><strong>ge</strong>schlaf<strong>en</strong></td></tr>
-            <tr><td>essen</td><td><strong>ge</strong>gess<strong>en</strong> ⚠️</td></tr>
-            <tr><td>schreiben</td><td><strong>ge</strong>schrieb<strong>en</strong> (vowel change)</td></tr>
+            <tr><td class="has-conj">fahren
+              <div class="conj-tooltip"><div class="ct-title">fahren — to drive / travel</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">fahre</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">fahren</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">fährst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">fahrt</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">fährt</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">fahren</span></div></div><div class="ct-aux">Perfekt with: sein</div></div>
+            </td><td><strong>ge</strong>fahr<strong>en</strong></td></tr>
+            <tr><td class="has-conj">lesen
+              <div class="conj-tooltip"><div class="ct-title">lesen — to read</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">lese</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">lesen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">liest</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">lest</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">liest</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">lesen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>les<strong>en</strong></td></tr>
+            <tr><td class="has-conj">kommen
+              <div class="conj-tooltip"><div class="ct-title">kommen — to come</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">komme</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">kommen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">kommst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">kommt</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">kommt</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">kommen</span></div></div><div class="ct-aux">Perfekt with: sein</div></div>
+            </td><td><strong>ge</strong>komm<strong>en</strong></td></tr>
+            <tr><td class="has-conj">sehen
+              <div class="conj-tooltip"><div class="ct-title">sehen — to see</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">sehe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">sehen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">siehst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">seht</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">sieht</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">sehen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>seh<strong>en</strong></td></tr>
+            <tr><td class="has-conj">schlafen
+              <div class="conj-tooltip"><div class="ct-title">schlafen — to sleep</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">schlafe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">schlafen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">schläfst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">schlaft</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">schläft</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">schlafen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>schlaf<strong>en</strong></td></tr>
+            <tr><td class="has-conj">essen
+              <div class="conj-tooltip"><div class="ct-title">essen — to eat</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">esse</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">essen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">isst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">esst</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">isst</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">essen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>gess<strong>en</strong> ⚠️</td></tr>
+            <tr><td class="has-conj">schreiben
+              <div class="conj-tooltip"><div class="ct-title">schreiben — to write</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">schreibe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">schreiben</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">schreibst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">schreibt</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">schreibt</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">schreiben</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>schrieb<strong>en</strong> (vowel change)</td></tr>
           </tbody>
         </table>
       </div>
@@ -583,13 +663,27 @@ h3:first-child {
         <table class="table-styled">
           <thead><tr><th>Infinitiv</th><th>Partizip II</th></tr></thead>
           <tbody>
-            <tr><td>gehen</td><td><strong>ge</strong>gang<strong>en</strong></td></tr>
-            <tr><td>sein</td><td><strong>ge</strong>wes<strong>en</strong></td></tr>
-            <tr><td>sprechen</td><td><strong>ge</strong>sproch<strong>en</strong></td></tr>
-            <tr><td>helfen</td><td><strong>ge</strong>holf<strong>en</strong></td></tr>
-            <tr><td>stehen</td><td><strong>ge</strong>stand<strong>en</strong></td></tr>
-            <tr><td>treffen</td><td><strong>ge</strong>troff<strong>en</strong></td></tr>
-            <tr><td>trinken</td><td><strong>ge</strong>trunk<strong>en</strong></td></tr>
+            <tr><td class="has-conj">gehen
+              <div class="conj-tooltip"><div class="ct-title">gehen — to go</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">gehe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">gehen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">gehst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">geht</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">geht</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">gehen</span></div></div><div class="ct-aux">Perfekt with: sein</div></div>
+            </td><td><strong>ge</strong>gang<strong>en</strong></td></tr>
+            <tr><td class="has-conj">sein
+              <div class="conj-tooltip"><div class="ct-title">sein — to be</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">bin</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">sind</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">bist</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">seid</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">ist</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">sind</span></div></div><div class="ct-aux">Perfekt with: sein</div></div>
+            </td><td><strong>ge</strong>wes<strong>en</strong></td></tr>
+            <tr><td class="has-conj">sprechen
+              <div class="conj-tooltip"><div class="ct-title">sprechen — to speak</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">spreche</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">sprechen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">sprichst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">sprecht</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">spricht</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">sprechen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>sproch<strong>en</strong></td></tr>
+            <tr><td class="has-conj">helfen
+              <div class="conj-tooltip"><div class="ct-title">helfen — to help</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">helfe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">helfen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">hilfst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">helft</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">hilft</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">helfen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>holf<strong>en</strong></td></tr>
+            <tr><td class="has-conj">stehen
+              <div class="conj-tooltip"><div class="ct-title">stehen — to stand</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">stehe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">stehen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">stehst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">steht</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">steht</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">stehen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>stand<strong>en</strong></td></tr>
+            <tr><td class="has-conj">treffen
+              <div class="conj-tooltip"><div class="ct-title">treffen — to meet</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">treffe</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">treffen</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">triffst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">trefft</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">trifft</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">treffen</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>troff<strong>en</strong></td></tr>
+            <tr><td class="has-conj">trinken
+              <div class="conj-tooltip"><div class="ct-title">trinken — to drink</div><div class="ct-grid"><div class="ct-row"><span class="ct-pro">ich</span><span class="ct-vf">trinke</span></div><div class="ct-row"><span class="ct-pro">wir</span><span class="ct-vf">trinken</span></div><div class="ct-row"><span class="ct-pro">du</span><span class="ct-vf">trinkst</span></div><div class="ct-row"><span class="ct-pro">ihr</span><span class="ct-vf">trinkt</span></div><div class="ct-row"><span class="ct-pro">er/sie/es</span><span class="ct-vf">trinkt</span></div><div class="ct-row"><span class="ct-pro">sie/Sie</span><span class="ct-vf">trinken</span></div></div><div class="ct-aux">Perfekt with: haben</div></div>
+            </td><td><strong>ge</strong>trunk<strong>en</strong></td></tr>
           </tbody>
         </table>
       </div>
