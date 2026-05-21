@@ -457,13 +457,10 @@
 </style>
 
 <div class="nav">
-  <button class="tab active" onclick="show('verbs')"><i class="ti ti-letter-v" aria-hidden="true"></i> Verbs</button>
-  <button class="tab" onclick="show('phrases')"><i class="ti ti-message" aria-hidden="true"></i> Useful phrases</button>
-  <button class="tab" onclick="show('grammar')"><i class="ti ti-books" aria-hidden="true"></i> Grammar</button>
-  <button class="tab" onclick="show('connectors')"><i class="ti ti-arrows-join" aria-hidden="true"></i> Connectors &
-    time</button>
-  <button class="tab" onclick="show('vocab')"><i class="ti ti-vocabulary" aria-hidden="true"></i> Vocabulary</button>
-  <button class="tab" onclick="show('numbers')"><i class="ti ti-numbers" aria-hidden="true"></i> Numbers & time</button>
+  <button class="tab active" onclick="show('verbs')">Verbs</button>
+  <button class="tab" onclick="show('phrases')">Phrases</button>
+  <button class="tab" onclick="show('grammar')">Grammar</button>
+  <button class="tab" onclick="show('words')">Words</button>
 </div>
 
 <div class="controls-bar">
@@ -500,6 +497,7 @@
 </div>
 
 <div id="verbs" class="section visible">
+
   <h3>Modal, Auxiliary & Präteritum verbs</h3>
   <div class="two-col">
     <div class="card">
@@ -1002,6 +1000,7 @@
 </div>
 
 <div id="phrases" class="section">
+
   <h3>Greetings & farewells</h3>
   <div class="card">
     <div class="row"><span class="de">Guten Morgen</span><span class="en">Good morning</span></div>
@@ -1189,7 +1188,8 @@
         <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:var(--color-text-primary)">Trennbare Verben
           (separable)</p>
         <p style="margin:0 0 10px;font-size:13px;color:var(--color-text-secondary)">Formula: prefix +
-          <strong>-ge-</strong> + stem + <strong>-t</strong></p>
+          <strong>-ge-</strong> + stem + <strong>-t</strong>
+        </p>
         <div class="table-wrapper">
           <table class="table-styled">
             <thead>
@@ -1600,10 +1600,56 @@
     <div class="row"><span class="de">vierte (4.)</span><span class="en">fourth</span></div>
     <div class="row"><span class="de">fünfte (5.)</span><span class="en">fifth</span></div>
   </div>
+
+  <h3>Possessives</h3>
+  <div class="card" style="font-size:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 24px;">
+      <div class="row"><span class="de">mein / meine</span><span class="en">my</span></div>
+      <div class="row"><span class="de">dein / deine</span><span class="en">your (informal)</span></div>
+      <div class="row"><span class="de">sein / seine</span><span class="en">his</span></div>
+      <div class="row"><span class="de">ihr / ihre</span><span class="en">her / their</span></div>
+      <div class="row"><span class="de">unser / unsere</span><span class="en">our</span></div>
+      <div class="row"><span class="de">euer / eure</span><span class="en">your (plural)</span></div>
+    </div>
+    <div class="note" style="margin-top:8px">Possessives change ending based on gender and case of the noun that
+      follows.</div>
+  </div>
+
+  <h3>Cases: nominative, accusative &amp; dative</h3>
+  <div class="card" style="font-size:14px;">
+    <div class="row"><span class="de">dich</span><span class="en">you (accusative) — Ich habe dich nicht gesehen.</span>
+    </div>
+    <div class="row"><span class="de">dir</span><span class="en">you (dative) — Carola hat es mir gesagt.</span></div>
+    <div class="row"><span class="de">einen Freund (Akk.)</span><span class="en">a friend — Ich spiele Tennis mit einem
+        Freund. (Dat.)</span></div>
+    <div class="note" style="margin-top:8px">mit → always dative. Articles change: ein → einem (masc. dative), einen
+      (masc. accusative).</div>
+  </div>
 </div>
 
-<div id="connectors" class="section">
-  <h3>Time & sequence</h3>
+<div id="words" class="section">
+  <h3>Cardinal numbers</h3>
+  <div class="card">
+    <div class="two-col" style="font-size:14px;gap:4px 24px;">
+      <div class="row"><span class="de">elf (11)</span><span></span></div>
+      <div class="row"><span class="de">zwölf (12)</span><span></span></div>
+      <div class="row"><span class="de">dreizehn (13)</span><span></span></div>
+      <div class="row"><span class="de">hundert (100)</span><span></span></div>
+      <div class="row"><span class="de">tausend (1000)</span><span></span></div>
+      <div class="row"><span class="de">zu zweit</span><span class="en">the two of you/us</span></div>
+      <div class="row"><span class="de">zu dritt</span><span class="en">the three of you/us</span></div>
+    </div>
+  </div>
+
+  <h3>Time expressions</h3>
+  <div class="card">
+    <div class="row"><span class="de">eine Stunde</span><span class="en">one hour</span></div>
+    <div class="row"><span class="de">eine halbe Stunde / dreißig Minuten</span><span class="en">half an hour / 30
+        minutes</span></div>
+    <div class="row"><span class="de">viertel Stunde</span><span class="en">quarter of an hour (15 min)</span></div>
+  </div>
+
+  <h3>Time &amp; sequence</h3>
   <div class="card">
     <div class="row"><span class="de">heute</span><span class="en">today</span></div>
     <div class="row"><span class="de">heute Abend</span><span class="en">this evening</span></div>
@@ -1628,7 +1674,7 @@
     <div class="row"><span class="de">nachher</span><span class="en">later</span></div>
   </div>
 
-  <h3>Cause, reason & purpose</h3>
+  <h3>Cause, reason &amp; purpose</h3>
   <div class="card">
     <div class="row"><span class="de">wenn</span><span class="en">if, when</span></div>
     <div class="row"><span class="de">weil</span><span class="en">because → verb geht ans Ende vom Satz</span></div>
@@ -1636,7 +1682,7 @@
     <div class="row"><span class="de">um … zu</span><span class="en">in order to — um nach Hause zu gehen</span></div>
   </div>
 
-  <h3>Location & direction</h3>
+  <h3>Location &amp; direction</h3>
   <div class="card">
     <div class="row"><span class="de">dort</span><span class="en">there</span></div>
     <div class="row"><span class="de">da / dort</span><span class="en">there</span></div>
@@ -1652,7 +1698,7 @@
     <div class="row"><span class="de">nah</span><span class="en">close</span></div>
   </div>
 
-  <h3>Quantity & degree</h3>
+  <h3>Quantity &amp; degree</h3>
   <div class="card">
     <div class="row"><span class="de">nur</span><span class="en">only</span></div>
     <div class="row"><span class="de">leider</span><span class="en">unfortunately</span></div>
@@ -1675,9 +1721,7 @@
     <div class="row"><span class="de">wirklich</span><span class="en">really</span></div>
     <div class="row"><span class="de">dafür</span><span class="en">instead, in exchange</span></div>
   </div>
-</div>
 
-<div id="vocab" class="section">
   <h3>People & relationships</h3>
   <div class="card">
     <div class="row"><span class="de">die Leute</span><span class="en">people</span></div>
@@ -1804,54 +1848,6 @@
     <div class="row"><span class="de">Bewegung</span><span class="en">movement</span></div>
     <div class="row"><span class="de">etwas</span><span class="en">something</span></div>
     <div class="row"><span class="de">nichts</span><span class="en">nothing</span></div>
-  </div>
-</div>
-
-<div id="numbers" class="section">
-  <h3>Cardinal numbers</h3>
-  <div class="card">
-    <div class="two-col" style="font-size:14px;gap:4px 24px;">
-      <div class="row"><span class="de">elf (11)</span><span></span></div>
-      <div class="row"><span class="de">zwölf (12)</span><span></span></div>
-      <div class="row"><span class="de">dreizehn (13)</span><span></span></div>
-      <div class="row"><span class="de">hundert (100)</span><span></span></div>
-      <div class="row"><span class="de">tausend (1000)</span><span></span></div>
-      <div class="row"><span class="de">zu zweit</span><span class="en">the two of you/us</span></div>
-      <div class="row"><span class="de">zu dritt</span><span class="en">the three of you/us</span></div>
-    </div>
-  </div>
-
-  <h3>Time expressions</h3>
-  <div class="card">
-    <div class="row"><span class="de">eine Stunde</span><span class="en">one hour</span></div>
-    <div class="row"><span class="de">eine halbe Stunde / dreißig Minuten</span><span class="en">half an hour / 30
-        minutes</span></div>
-    <div class="row"><span class="de">viertel Stunde</span><span class="en">quarter of an hour (15 min)</span></div>
-  </div>
-
-  <h3>Possessives</h3>
-  <div class="card" style="font-size:14px;">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 24px;">
-      <div class="row"><span class="de">mein / meine</span><span class="en">my</span></div>
-      <div class="row"><span class="de">dein / deine</span><span class="en">your (informal)</span></div>
-      <div class="row"><span class="de">sein / seine</span><span class="en">his</span></div>
-      <div class="row"><span class="de">ihr / ihre</span><span class="en">her / their</span></div>
-      <div class="row"><span class="de">unser / unsere</span><span class="en">our</span></div>
-      <div class="row"><span class="de">euer / eure</span><span class="en">your (plural)</span></div>
-    </div>
-    <div class="note" style="margin-top:8px">Possessives change ending based on gender and case of the noun that
-      follows.</div>
-  </div>
-
-  <h3>Cases: nominative, accusative & dative</h3>
-  <div class="card" style="font-size:14px;">
-    <div class="row"><span class="de">dich</span><span class="en">you (accusative) — Ich habe dich nicht gesehen.</span>
-    </div>
-    <div class="row"><span class="de">dir</span><span class="en">you (dative) — Carola hat es mir gesagt.</span></div>
-    <div class="row"><span class="de">einen Freund (Akk.)</span><span class="en">a friend — Ich spiele Tennis mit einem
-        Freund. (Dat.)</span></div>
-    <div class="note" style="margin-top:8px">mit → always dative. Articles change: ein → einem (masc. dative), einen
-      (masc. accusative).</div>
   </div>
 </div>
 
