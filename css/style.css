@@ -107,3 +107,37 @@
     .tab.practice { margin-left: 0; }
     .vtable .hide-sm { display: none; }
   }
+
+  /* ---------- levels ---------- */
+  header { align-items: center; }
+  header h1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  header h1 a.home { color: inherit; text-decoration: none; }
+  header h1 a.home:hover { text-decoration: underline; }
+  .lvbadge { font-size: 13px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 14px; padding: 3px 10px; letter-spacing: .02em; }
+  .lvbadge.all { background: var(--text-2); }
+  .lvswitch { display: flex; gap: 4px; margin-left: auto; }
+  .lvswitch a { --c: var(--text-2); font-size: 13px; font-weight: 600; text-decoration: none; color: var(--c); border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 3px 10px; }
+  .lvswitch a:hover { border-color: var(--c); }
+  .lvswitch a.on { background: var(--c); border-color: var(--c); color: #fff; }
+  header .stats { width: 100%; margin-top: -4px; }
+  .lvtag { --c: var(--text-3); font-size: 10px; font-weight: 700; color: var(--c); border: 1px solid var(--c); border-radius: 6px; padding: 0 5px; margin-left: 6px; vertical-align: 2px; }
+  .lvtag.none { --c: #d97706; background: #fffbeb; }
+  .elsewhere { font-size: 13px; color: var(--text-3); margin: -6px 0 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .elsewhere:empty { display: none; }
+  .elsewhere a, p.basics a { --c: var(--accent); color: var(--c); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
+  p.basics { font-size: 13.5px; color: var(--text-3); background: var(--border-3); border-radius: var(--r-sm); padding: 6px 10px; }
+  .start { background: var(--accent-light); border: 1px solid var(--accent); border-radius: var(--r-lg); padding: .6rem 1rem; margin-bottom: 1.25rem; }
+  .start summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+  .start summary .count { font-weight: 500; font-size: 12px; color: var(--text-3); margin-left: 6px; }
+  .start ol { margin: .6rem 0 .2rem; padding: 0; list-style: none; counter-reset: s; display: flex; flex-wrap: wrap; gap: 6px; }
+  .start li { counter-increment: s; display: flex; align-items: stretch; border: 1px solid var(--border); background: var(--card); border-radius: 16px; overflow: hidden; }
+  .start .step { font: inherit; font-size: 13px; background: none; border: 0; padding: 4px 6px 4px 10px; cursor: pointer; color: var(--text); }
+  .start .step::before { content: counter(s) ". "; color: var(--accent); font-weight: 700; }
+  .start .step:hover { text-decoration: underline; }
+  .start .tick { width: 26px; border: 0; border-left: 1px solid var(--border-2); background: none; cursor: pointer; color: var(--border); font-weight: 700; }
+  .start li.done .tick { color: #fff; }
+  .start .tick:hover { background: var(--border-3); }
+  .start li.done { border-color: var(--accent); }
+  .start li.done .step { color: var(--text-3); text-decoration: line-through; }
+  .start li.done .tick { background: var(--accent); }
+  @media (max-width: 640px) { .lvswitch { margin-left: 0; } }

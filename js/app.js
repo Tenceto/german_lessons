@@ -1,3 +1,36 @@
+/* =====================================================================
+   App code, shared by every page. The page says which level it shows with
+   <body data-level="1|2|3">; without data-level it shows all levels (alle.html).
+   ===================================================================== */
+const ALL = { WORDS, VERBS, SMALL, PHRASES, GRAMMAR };
+{ // Inside this block WORDS, VERBS … only contain the current level's entries.
+
+/* ---------- levels ---------- */
+const LEVEL = +document.body.dataset.level || 0;
+const LV = LEVELS[LEVEL] || null;
+const lv = e => e.lvl || 0;
+const pageOf = l => l ? LEVELS[l].code.toLowerCase() + '.html' : 'alle.html';
+const inLevel = e => !LEVEL || lv(e) === LEVEL;
+const upToLevel = e => lv(e) >= 1 && lv(e) <= LEVEL;
+// Grammar: keep chapters that have something at the level; rules/examples inherit the chapter level.
+// own = the chapter itself belongs to this level → show its intro, table and generated lists.
+function grammarFor(pred) {
+  return ALL.GRAMMAR.map(g => {
+    const rules = (g.rules || []).filter(r => pred({ lvl: r.lvl || g.lvl }));
+    const ex = (g.ex || []).filter(x => pred({ lvl: x[2] || g.lvl }));
+    const own = pred(g);
+    return own || rules.length || ex.length ? { ...g, rules, ex, own } : null;
+  }).filter(Boolean);
+}
+const WORDS = ALL.WORDS.filter(inLevel), VERBS = ALL.VERBS.filter(inLevel),
+  SMALL = ALL.SMALL.filter(inLevel), PHRASES = ALL.PHRASES.filter(inLevel), GRAMMAR = grammarFor(inLevel);
+// Practice can optionally include the earlier levels too.
+const withLower = () => LEVEL > 1 && P.lower;
+const POOL = name => !withLower() ? { WORDS, VERBS, SMALL, PHRASES, GRAMMAR }[name]
+  : name === 'GRAMMAR' ? grammarFor(upToLevel) : ALL[name].filter(upToLevel);
+const lvTag = l => l ? `<span class="lvtag" style="--c:${LEVELS[l].color}">${LEVELS[l].code}</span>` : '<span class="lvtag none" title="ohne Stufe (lvl fehlt)">?</span>';
+const lvBadge = e => LEVEL ? '' : lvTag(lv(e));   // on the "Alle Stufen" page every row shows its level
+
 /* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -54,28 +87,91 @@ function conjGrid(forms) {
 }
 
 /* ---------- state ---------- */
-const S = store.get('ui-v2', {});
+// Each level remembers its own filters and practice settings; "Alle Stufen" keeps the original keys.
+const KEY = k => LEVEL ? `${k}:${LV.code}` : k;
+const S = store.get(KEY('ui-v2'), store.get('ui-v2', {}));
 const state = Object.assign({ tab: 'words', q: {}, wType: 'all', wTopic: 'all', wSort: 'topic', vFilter: 'all', sGroup: 'all', pTopic: 'all' }, S);
-const save = () => store.set('ui-v2', { tab: state.tab, wType: state.wType, wTopic: state.wTopic, wSort: state.wSort, vFilter: state.vFilter, sGroup: state.sGroup, pTopic: state.pTopic });
+const save = () => store.set(KEY('ui-v2'), { tab: state.tab, wType: state.wType, wTopic: state.wTopic, wSort: state.wSort, vFilter: state.vFilter, sGroup: state.sGroup, pTopic: state.pTopic });
+// Links from other pages: ?tab=verbs&q=fahren (search from another level) — reset filters so the hits are visible.
+const URLP = new URLSearchParams(location.search);
+if (URLP.get('tab')) state.tab = URLP.get('tab');
+if (URLP.get('q')) Object.assign(state, { q: { [state.tab]: URLP.get('q') }, wType: 'all', wTopic: 'all', vFilter: 'all', sGroup: 'all', pTopic: 'all' });
+if (URLP.toString()) history.replaceState(null, '', location.pathname);
+if (LEVEL) store.set('last-level', LEVEL);
 
 const TABS = [
   ['words', 'Wörter', WORDS.length], ['verbs', 'Verben', VERBS.length], ['small', 'Kleine Wörter', SMALL.length],
   ['phrases', 'Sätze', PHRASES.length], ['grammar', 'Grammatik', GRAMMAR.length], ['practice', '▶ Üben', null]
 ];
+function renderHeader() {
+  document.title = (LV ? `${LV.code} ${LV.name} · ` : 'Alle Stufen · ') + 'German Study Notes';
+  if (LV) { document.body.style.setProperty('--accent', LV.color); document.body.style.setProperty('--accent-light', LV.light); }
+  $('header').innerHTML = `<h1><a class="home" href="index.html" title="Zur Startseite">🇩🇪 German Study Notes</a>
+      ${LV ? `<span class="lvbadge">${LV.code} · ${LV.name}</span>` : '<span class="lvbadge all">Alle Stufen</span>'}</h1>
+    <nav class="lvswitch" id="lvswitch"></nav><div class="stats" id="stats"></div>`;
+}
 function renderNav() {
   $('#nav').innerHTML = TABS.map(([id, label, n]) =>
     `<button class="tab${id === 'practice' ? ' practice' : ''}${state.tab === id ? ' active' : ''}" data-tab="${id}">${label}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
   $('#nav').querySelectorAll('.tab').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; save(); render(); window.scrollTo(0, 0); });
+  // level switcher keeps the current tab
+  const tab = state.tab === 'practice' ? '' : `?tab=${state.tab}`;
+  $('#lvswitch').innerHTML = [1, 2, 3, 0].map(l => `<a class="lv${l === LEVEL ? ' on' : ''}" href="${pageOf(l)}${tab}"${l ? ` style="--c:${LEVELS[l].color}" title="${LEVELS[l].en}"` : ''}>${l ? LEVELS[l].code : 'Alle'}</a>`).join('');
   const total = WORDS.length + VERBS.length + SMALL.length + PHRASES.length;
   const nNew = [...WORDS, ...VERBS, ...SMALL, ...PHRASES].filter(isNew).length;
-  $('#stats').textContent = `${total} entries · ${nNew} added in the last 14 days`;
+  $('#stats').textContent = `${total} entries${LV ? ' in ' + LV.code : ''} · ${nNew} added in the last 14 days`;
 }
+
+/* ---------- Hier anfangen (suggested order for this level) ---------- */
+function stepHasContent([tab, f]) {
+  if (tab === 'words') return WORDS.some(e => e.tags.includes(f));
+  if (tab === 'phrases') return PHRASES.some(e => e.tags.includes(f));
+  if (tab === 'small') return SMALL.some(e => e.g === f);
+  if (tab === 'verbs') return VF[f] && VERBS.some(VF[f][1]);
+  if (tab === 'grammar') return GRAMMAR.some(g => g.id === f);
+}
+function goStep(tab, f) {
+  state.tab = tab; state.q[tab] = '';
+  if (tab === 'words') Object.assign(state, { wTopic: f, wType: 'all', wSort: 'topic' });
+  if (tab === 'phrases') state.pTopic = f;
+  if (tab === 'small') state.sGroup = f;
+  if (tab === 'verbs') state.vFilter = f;
+  save(); render();
+  const target = tab === 'grammar' ? document.getElementById('g-' + f) : $('#nav');
+  if (target) target.scrollIntoView({ behavior: 'smooth' });
+}
+function renderStart() {
+  const box = $('#start'); if (!box) return;
+  const steps = (START_HERE[LEVEL] || []).filter(stepHasContent);
+  if (!steps.length) { box.innerHTML = ''; return; }
+  const done = store.get(KEY('start-done'), {}), open = store.get(KEY('start-open'), matchMedia('(min-width: 641px)').matches);
+  const nDone = steps.filter(s => done[s[0] + ':' + s[1]]).length;
+  box.innerHTML = `<details class="start"${open ? ' open' : ''}><summary>🧭 Hier anfangen <span class="count">${nDone} / ${steps.length} erledigt</span></summary>
+    <ol>${steps.map(([tab, f, label]) => { const k = tab + ':' + f; return `<li class="${done[k] ? 'done' : ''}">
+      <button class="step" data-step="${k}">${esc(label)}</button><button class="tick" data-tick="${k}" title="${done[k] ? 'erledigt' : 'als erledigt markieren'}">✓</button></li>`; }).join('')}</ol></details>`;
+  box.querySelector('details').ontoggle = e => store.set(KEY('start-open'), e.target.open);
+  box.querySelectorAll('[data-step]').forEach(b => b.onclick = () => { const [t, f] = b.dataset.step.split(':'); goStep(t, f); });
+  box.querySelectorAll('[data-tick]').forEach(b => b.onclick = () => { const k = b.dataset.tick; done[k] = !done[k]; store.set(KEY('start-done'), done); renderStart(); });
+}
+
+/* ---------- search ---------- */
 function searchBox(key, placeholder) {
   return `<input class="search" id="q" placeholder="${placeholder}" value="${esc(state.q[key] || '')}" autocomplete="off">`;
 }
 function bindSearch(key, rerender) {
   const q = $('#q'); if (!q) return;
-  q.oninput = () => { state.q[key] = q.value; rerender(); };
+  q.closest('.toolbar').insertAdjacentHTML('afterend', '<div class="elsewhere" id="elsewhere"></div>');
+  q.oninput = () => { state.q[key] = q.value; rerender(); showElsewhere(key); };
+  showElsewhere(key);
+}
+// On a level page, tell the user when the search term exists in another level.
+function showElsewhere(key) {
+  const box = $('#elsewhere'), q = state.q[key], name = { words: 'WORDS', verbs: 'VERBS', small: 'SMALL', phrases: 'PHRASES' }[key];
+  if (!box) return;
+  const hits = !LEVEL || !q || !name ? [] : [1, 2, 3].filter(l => l !== LEVEL)
+    .map(l => [l, ALL[name].filter(e => lv(e) === l && matches(e, q)).length]).filter(([, n]) => n);
+  box.innerHTML = hits.length ? 'Auch in anderen Stufen: ' + hits.map(([l, n]) =>
+    `<a href="${pageOf(l)}?tab=${key}&q=${encodeURIComponent(q)}" style="--c:${LEVELS[l].color}">${LEVELS[l].code} · ${n} Treffer →</a>`).join(' ') : '';
 }
 const matches = (e, q) => !q || norm([e.de, e.pl, e.en, e.ex, e.note, e.pp].filter(Boolean).join(' ')).includes(norm(q));
 function chips(items, current, attr) {
@@ -84,7 +180,7 @@ function chips(items, current, attr) {
 function bindChips(attr, fn) { document.querySelectorAll(`[data-${attr}]`).forEach(c => c.onclick = () => fn(c.dataset[attr])); }
 function goPractice(source, filter) {
   Object.assign(P, { source, filter: filter || 'all' }); P.mode = 'meaning';
-  store.set('practice-v1', P); startSession();
+  store.set(KEY('practice-v1'), P); startSession();
   state.tab = 'practice'; save(); render(); window.scrollTo(0, 0);
 }
 function bindGo() { document.querySelectorAll('[data-go]').forEach(b => b.onclick = e => { e.stopPropagation(); const [s, f] = b.dataset.go.split(':'); goPractice(s, f); }); }
@@ -94,7 +190,7 @@ function wordRow(e) {
   let de = e.t === 'noun' ? nounHtml(e.de) : esc(e.de);
   if (e.pl) de += `<span class="pl">${nounHtml(e.pl)}</span>`;
   if (e.komp) de += `<span class="komp">${esc(e.komp)} · ${esc(e.sup)}</span>`;
-  return `<div class="row"><span class="de">${de}${newBadge(e)}</span><span class="en">${esc(e.en)}${e.ex ? `<span class="ex">${esc(e.ex)}</span>` : ''}</span></div>`;
+  return `<div class="row"><span class="de">${de}${newBadge(e)}${lvBadge(e)}</span><span class="en">${esc(e.en)}${e.ex ? `<span class="ex">${esc(e.ex)}</span>` : ''}</span></div>`;
 }
 function renderWords() {
   const m = $('#main');
@@ -153,7 +249,7 @@ function renderVerbs() {
     const items = VERBS.filter(v => f(v) && matches(v, q));
     $('#vbody').innerHTML = items.map((v, i) => {
       const pr = present(v), pt = prateritum(v);
-      return `<tr class="v" data-i="${i}"><td><b>${esc(v.de)}</b>${verbTags(v)}${newBadge(v)}</td><td>${esc(v.en)}</td><td class="hide-sm">${esc(pr[2])}</td><td class="vf">${esc(perfekt(v))}</td></tr>
+      return `<tr class="v" data-i="${i}"><td><b>${esc(v.de)}</b>${verbTags(v)}${newBadge(v)}${lvBadge(v)}</td><td>${esc(v.en)}</td><td class="hide-sm">${esc(pr[2])}</td><td class="vf">${esc(perfekt(v))}</td></tr>
         <tr class="vdetail" style="display:none"><td colspan="4"><div style="font-size:12px;color:var(--text-3);font-weight:600">PRÄSENS</div>${conjGrid(pr)}
         ${pt ? `<div style="font-size:12px;color:var(--text-3);font-weight:600">PRÄTERITUM</div>${conjGrid(pt)}` : ''}
         ${v.ex ? `<div class="vnote"><i>${esc(v.ex)}</i></div>` : ''}${v.note ? `<div class="vnote">💡 ${esc(v.note)}</div>` : ''}</td></tr>`;
@@ -169,7 +265,7 @@ function renderVerbs() {
 /* ---------- Kleine Wörter ---------- */
 function smallRow(e) {
   let de = esc(e.de); if (e.komp) de += `<span class="komp">${esc(e.komp)} · ${esc(e.sup)}</span>`;
-  return `<div class="row"><span class="de">${de}${newBadge(e)}</span><span class="en">${esc(e.en)}${e.ex ? `<span class="ex">${esc(e.ex)}</span>` : ''}</span></div>`;
+  return `<div class="row"><span class="de">${de}${newBadge(e)}${lvBadge(e)}</span><span class="en">${esc(e.en)}${e.ex ? `<span class="ex">${esc(e.ex)}</span>` : ''}</span></div>`;
 }
 function renderSmall() {
   const m = $('#main');
@@ -227,19 +323,20 @@ function renderGrammar() {
       [...WORDS, ...SMALL].filter(e => e.komp).map(e => `<tr><td>${esc(e.de)} <span style="color:var(--text-3)">(${esc(e.en)})</span></td><td class="vf">${esc(e.komp)}</td><td class="vf">${esc(e.sup)}</td></tr>`).join('') + '</tbody></table>'
   };
   m.innerHTML = '<div class="toc">' + GRAMMAR.map((g, i) => `<button class="chip" data-jump="${g.id}">${i + 1}. ${esc(g.title.split(' — ')[0])}</button>`).join('') + '</div>' +
-    GRAMMAR.map((g, i) => `<section class="gsec" id="g-${g.id}"><h2><span class="num">${i + 1}</span>${esc(g.title)}${(g.rules || g.ex) ? `<button class="go" data-go="grammar:${g.id}">▶ üben</button>` : ''}</h2>
-      ${(g.intro || []).map(p => `<p>${p}</p>`).join('')}
-      ${g.table ? `<table class="gtable"><thead><tr>${g.table.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${g.table.rows.map(r => `<tr>${r.map((c, j) => `<td${j ? '' : ' style="font-weight:600"'}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}
+    GRAMMAR.map((g, i) => `<section class="gsec" id="g-${g.id}"><h2><span class="num">${i + 1}</span>${esc(g.title)}${lvBadge(g)}${(g.rules.length || g.ex.length) ? `<button class="go" data-go="grammar:${g.id}">▶ üben</button>` : ''}</h2>
+      ${!g.own ? `<p class="basics">Die Grundlagen dieses Kapitels sind in <a href="${pageOf(g.lvl)}?tab=grammar" style="--c:${LEVELS[g.lvl].color}">${LEVELS[g.lvl].code} · ${LEVELS[g.lvl].name}</a>. Hier nur die ${LV.code}-Regeln.</p>` : ''}
+      ${g.own ? (g.intro || []).map(p => `<p>${p}</p>`).join('') : ''}
+      ${g.own && g.table ? `<table class="gtable"><thead><tr>${g.table.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${g.table.rows.map(r => `<tr>${r.map((c, j) => `<td${j ? '' : ' style="font-weight:600"'}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}
       ${(g.rules || []).map(r => `<div class="rule"><div class="t">${esc(r.t)}</div><div class="e">${esc(r.ex)}</div>${r.note ? `<div class="n">${esc(r.note)}</div>` : ''}</div>`).join('')}
       ${g.ex && g.ex.length ? `<div class="card" style="margin-top:10px">${g.ex.map(([de, en]) => `<div class="row"><span class="de">${esc(de)}</span><span class="en">${esc(en)}</span></div>`).join('')}</div>` : ''}
-      ${g.auto ? autoHtml[g.auto]() : ''}</section>`).join('');
+      ${g.own && g.auto ? autoHtml[g.auto]() : ''}</section>`).join('');
   document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => document.getElementById('g-' + b.dataset.jump).scrollIntoView({ behavior: 'smooth' }));
   bindGo();
 }
 
 /* ---------- Üben (spaced repetition) ---------- */
 const INTERVALS = [0, 1, 3, 7, 14, 30, 60]; // days per box
-const P = Object.assign({ source: 'words', filter: 'all', mode: 'meaning', dir: 'de-en', dueOnly: true, size: 20 }, store.get('practice-v1', {}));
+const P = Object.assign({ source: 'words', filter: 'all', mode: 'meaning', dir: 'de-en', dueOnly: true, size: 20, lower: false }, store.get(KEY('practice-v1'), store.get('practice-v1', {})));
 let SRS = store.get('srs-v1', {});
 let queue = [], qi = 0, revealed = false, done = 0;
 const today = () => new Date().toISOString().slice(0, 10);
@@ -249,7 +346,7 @@ function sourceFilters(src) {
   if (src === 'words' || src === 'phrases') return [['all', 'Alle Themen'], ['neu', 'Neu (14 Tage)'], ...Object.entries(TOPICS)];
   if (src === 'small') return [['all', 'Alle Gruppen'], ['neu', 'Neu (14 Tage)'], ...Object.entries(SMALL_GROUPS).map(([k, v]) => [k, v.split(' — ')[0]])];
   if (src === 'verbs') return Object.entries(VF).map(([k, [l]]) => [k, l]);
-  if (src === 'grammar') return [['all', 'Alle Kapitel'], ...GRAMMAR.map(g => [g.id, g.title.split(' — ')[0]])];
+  if (src === 'grammar') return [['all', 'Alle Kapitel'], ...POOL('GRAMMAR').map(g => [g.id, g.title.split(' — ')[0]])];
   return [['all', 'Alle']];
 }
 function sourceModes(src) {
@@ -259,6 +356,8 @@ function sourceModes(src) {
 }
 function buildCards() {
   const f = P.filter, cards = [];
+  const [WORDS, VERBS, SMALL, PHRASES, GRAMMAR] = ['WORDS', 'VERBS', 'SMALL', 'PHRASES', 'GRAMMAR'].map(POOL);
+  const push = (l, c) => cards.push({ ...c, lvl: l });
   const topicOk = e => f === 'all' || (f === 'neu' ? isNew(e) : (e.tags || []).includes(f) || e.g === f);
   const wordDe = e => (e.t === 'noun' ? nounHtml(e.de) : esc(e.de)) + (e.pl ? `<span class="pl">${nounHtml(e.pl)}</span>` : '');
   const exHtml = e => e.ex ? `<span class="ex">${esc(e.ex)}</span>` : '';
@@ -267,24 +366,24 @@ function buildCards() {
       if (P.mode === 'article') {
         if (e.t !== 'noun') continue;
         const bare = e.de.replace(/\b(der|die|das) /g, '');
-        cards.push({ id: 'art:' + e.de, kind: 'Artikel & Plural', front: esc(bare), hint: esc(e.en), back: wordDe(e), fixed: true });
-      } else cards.push({ id: 'w:' + e.de, kind: e.t === 'noun' ? 'Nomen' : 'Adjektiv', de: wordDe(e), en: esc(e.en) + exHtml(e) });
+        push(e.lvl, { id: 'art:' + e.de, kind: 'Artikel & Plural', front: esc(bare), hint: esc(e.en), back: wordDe(e), fixed: true });
+      } else push(e.lvl, { id: 'w:' + e.de, kind: e.t === 'noun' ? 'Nomen' : 'Adjektiv', de: wordDe(e), en: esc(e.en) + exHtml(e) });
     }
   } else if (P.source === 'small' || P.source === 'phrases') {
     const list = P.source === 'small' ? SMALL : PHRASES;
-    for (const e of list.filter(topicOk)) cards.push({ id: P.source[0] + ':' + e.de, kind: P.source === 'small' ? 'Kleines Wort' : 'Satz', de: esc(e.de), en: esc(e.en) + exHtml(e) });
+    for (const e of list.filter(topicOk)) push(e.lvl, { id: P.source[0] + ':' + e.de, kind: P.source === 'small' ? 'Kleines Wort' : 'Satz', de: esc(e.de), en: esc(e.en) + exHtml(e) });
   } else if (P.source === 'verbs') {
     for (const v of VERBS.filter(VF[f] ? VF[f][1] : () => true)) {
       const pr = present(v);
-      if (P.mode === 'perfekt') cards.push({ id: 'vp:' + v.de, kind: 'Perfekt', front: esc(v.de), hint: esc(v.en), back: esc(perfekt(v)), fixed: true });
-      else if (P.mode === 'present') cards.push({ id: 'vr:' + v.de, kind: 'Präsens', front: esc(v.de), hint: 'du … / er … ?', back: `du ${esc(pr[1])} · er ${esc(pr[2])}`, fixed: true });
-      else if (P.mode === 'conj') cards.push({ id: 'vc:' + v.de, kind: 'Konjugation', front: esc(v.de), hint: esc(v.en), back: conjGrid(pr), fixed: true });
-      else cards.push({ id: 'v:' + v.de, kind: 'Verb', de: esc(v.de), en: esc(v.en) + exHtml(v) });
+      if (P.mode === 'perfekt') push(v.lvl, { id: 'vp:' + v.de, kind: 'Perfekt', front: esc(v.de), hint: esc(v.en), back: esc(perfekt(v)), fixed: true });
+      else if (P.mode === 'present') push(v.lvl, { id: 'vr:' + v.de, kind: 'Präsens', front: esc(v.de), hint: 'du … / er … ?', back: `du ${esc(pr[1])} · er ${esc(pr[2])}`, fixed: true });
+      else if (P.mode === 'conj') push(v.lvl, { id: 'vc:' + v.de, kind: 'Konjugation', front: esc(v.de), hint: esc(v.en), back: conjGrid(pr), fixed: true });
+      else push(v.lvl, { id: 'v:' + v.de, kind: 'Verb', de: esc(v.de), en: esc(v.en) + exHtml(v) });
     }
   } else if (P.source === 'grammar') {
     for (const g of GRAMMAR.filter(g => f === 'all' || g.id === f)) {
-      for (const r of g.rules || []) cards.push({ id: 'g:' + r.t, kind: 'Grammatik', front: esc(r.t), hint: 'Regel & Beispiel?', back: esc(r.ex) + (r.note ? `<span class="ex">${esc(r.note)}</span>` : ''), fixed: true });
-      for (const [de, en] of g.ex || []) cards.push({ id: 'ge:' + de, kind: 'Grammatik-Beispiel', de: esc(de), en: esc(en) });
+      for (const r of g.rules || []) push(r.lvl || g.lvl, { id: 'g:' + r.t, kind: 'Grammatik', front: esc(r.t), hint: 'Regel & Beispiel?', back: esc(r.ex) + (r.note ? `<span class="ex">${esc(r.note)}</span>` : ''), fixed: true });
+      for (const [de, en, l] of g.ex || []) push(l || g.lvl, { id: 'ge:' + de, kind: 'Grammatik-Beispiel', de: esc(de), en: esc(en) });
     }
   }
   return cards;
@@ -322,17 +421,19 @@ function renderPractice() {
       <label>Richtung<select id="pDir">${opt([['de-en', 'Deutsch → Englisch'], ['en-de', 'Englisch → Deutsch'], ['random', 'Gemischt']], P.dir)}</select></label>
       <label>Karten<select id="pSize">${opt([['10', '10'], ['20', '20'], ['50', '50'], ['0', 'Alle']], String(P.size))}</select></label>
       <label class="inline"><input type="checkbox" id="pDue"${P.dueOnly ? ' checked' : ''}> Nur fällige Karten</label>
+      ${LEVEL > 1 ? `<label class="inline"><input type="checkbox" id="pLower"${P.lower ? ' checked' : ''}> Frühere Stufen einbeziehen (${[1, 2].filter(l => l < LEVEL).map(l => LEVELS[l].code).join(' + ')})</label>` : ''}
     </div>
     <div class="pr-info"><span id="pInfo"></span><span class="boxes" id="pBoxes"></span></div>
     <div id="fcWrap"></div>
     <div class="kbd">Leertaste = aufdecken · 1 = Nochmal · 2 = Schwer · 3 = Gewusst</div>`;
-  const upd = () => { store.set('practice-v1', P); startSession(); renderPractice(); };
+  const upd = () => { store.set(KEY('practice-v1'), P); startSession(); renderPractice(); };
   $('#pSrc').onchange = e => { P.source = e.target.value; P.filter = 'all'; P.mode = 'meaning'; upd(); };
   $('#pFil').onchange = e => { P.filter = e.target.value; upd(); };
   $('#pMode').onchange = e => { P.mode = e.target.value; upd(); };
   $('#pDir').onchange = e => { P.dir = e.target.value; upd(); };
   $('#pSize').onchange = e => { P.size = +e.target.value; upd(); };
   $('#pDue').onchange = e => { P.dueOnly = e.target.checked; upd(); };
+  if ($('#pLower')) $('#pLower').onchange = e => { P.lower = e.target.checked; upd(); };
   if (!queue.length && !done) startSession();
   drawCard();
 }
@@ -349,13 +450,13 @@ function drawCard() {
       <div class="hint">${done ? `${done} Karten wiederholt.` : 'Alles wiederholt — oder wähle eine andere Auswahl.'}</div>
       <div class="grade"><button class="btn" id="again">Neue Runde</button>${P.dueOnly ? '<button class="btn light" id="all">Alle Karten üben</button>' : ''}</div></div>`;
     $('#again').onclick = () => { startSession(); drawCard(); };
-    if ($('#all')) $('#all').onclick = () => { P.dueOnly = false; store.set('practice-v1', P); startSession(); renderPractice(); };
+    if ($('#all')) $('#all').onclick = () => { P.dueOnly = false; store.set(KEY('practice-v1'), P); startSession(); renderPractice(); };
     return;
   }
   const front = c.fixed ? c.front : (c.showDe ? c.de : c.en);
   const back = c.fixed ? c.back : (c.showDe ? c.en : c.de);
   const box = SRS[c.id] ? SRS[c.id].b : null;
-  w.innerHTML = `<div class="fc" id="fc"><div class="kind">${c.kind}${box != null ? ` · Box ${box}` : ' · neu'}</div>
+  w.innerHTML = `<div class="fc" id="fc"><div class="kind">${c.kind}${LEVEL && c.lvl !== LEVEL ? ' · ' + lvTag(c.lvl) : ''}${box != null ? ` · Box ${box}` : ' · neu'}</div>
       <div class="front">${front}</div>${c.hint ? `<div class="hint">${c.hint}</div>` : ''}
       ${revealed ? `<div class="back">${back}</div>` : '<div class="tap">Klicken zum Aufdecken</div>'}</div>
     ${revealed ? `<div class="grade"><button class="again" data-g="0">Nochmal<small>gleich wieder</small></button><button class="hard" data-g="1">Schwer<small>morgen</small></button><button class="good" data-g="2">Gewusst<small>in ${INTERVALS[Math.min((box ?? 0) + 1, INTERVALS.length - 1)]} Tag(en)</small></button></div>` : ''}`;
@@ -370,7 +471,11 @@ document.addEventListener('keydown', e => {
 
 /* ---------- main ---------- */
 function render() {
-  renderNav();
+  renderNav(); renderStart();
   ({ words: renderWords, verbs: renderVerbs, small: renderSmall, phrases: renderPhrases, grammar: renderGrammar, practice: renderPractice }[state.tab] || renderWords)();
 }
+renderHeader();
+if (LEVEL) $('#main').insertAdjacentHTML('beforebegin', '<section id="start"></section>');
 render();
+
+} // end of level block
